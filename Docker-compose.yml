@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  sellerth:
+    build: .
+    container_name: sellerth
+    environment:
+      - PORT=3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - database
+    networks:
+      - mynetwork
+
+  api:
+    build: .
+    container_name: webapi
+    environment:
+      - PORT=5000
+    ports:
+      - '5000:5000'
+    depends_on:
+      - database
+    networks:
+      - mynetwork
+
+  database:
+    image: mysql:8.0.32
+    container_name: MySql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ss1157
+      MYSQL_DATABASE: test
+      MYSQL_USER: suranart
+      MYSQL_PASSWORD: P@ss1157
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+      - ./db-data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    networks:
+      - mynetwork
+
+  web:
+    container_name: www
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
